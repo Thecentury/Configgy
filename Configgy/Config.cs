@@ -100,33 +100,39 @@ namespace Configgy
         /// Get a configuration value.
         /// </summary>
         /// <typeparam name="T">The type of the expected configuration value.</typeparam>
-        /// <param name="valueName">
+        /// <param name="settingName"></param>
+        /// <param name="propertyName">
         ///     The name of the configuration value to get.
         ///     This will automatically be the name of the calling method or property and will be populated by the compiler.
         /// </param>
         /// <returns>The configuration value.</returns>
-        protected T Get<T>([CallerMemberName] string valueName = null)
+        protected T Get<T>(string settingName = null, [CallerMemberName] string propertyName = null)
         {
-            return (T)Cache.Get(valueName, ProduceValue<T>);
+            return (T)Cache.Get(settingName, propertyName, ProduceValue<T>);
         }
 
-        private object ProduceValue<T>(string valueName)
+        private object ProduceValue<T>(GetValueArgs args)
         {
+            string settingName = args.SettingName;
+            string propertyName = args.PropertyName;
+
+            string actualSettingName = settingName ?? propertyName;
+
             // get the property reference
-            _properties.TryGetValue(valueName, out PropertyInfo property);
+            _properties.TryGetValue(propertyName, out PropertyInfo property);
 
             // Get the value from the factory
-            if (!Source.Get(valueName, property, out string value))
+            if (!Source.Get( actualSettingName, property, out string value))
             {
                 // Throw an exception informing the user of the missing value
-                throw new MissingValueException(valueName);
+                throw new MissingValueException( actualSettingName );
             }
 
             // Transform the value
-            value = Transformer.Transform(value, valueName, property);
+            value = Transformer.Transform(value, propertyName, property);
 
             // Validate the value
-            var coerced = Validator.Validate(value, valueName, property, out T result);
+            var coerced = Validator.Validate(value, propertyName, property, out T result);
 
             // Optimization: skip coercion for string values
             var type = typeof(T);
@@ -138,10 +144,10 @@ namespace Configgy
             var coercionContext = new CoercionContext( Coercer );
 
             // Coerce the value
-            if (!Coercer.Coerce(value, valueName, property, coercionContext, out result))
+            if (!Coercer.Coerce(value, propertyName, property, coercionContext, out result))
             {
                 // Throw an exception informing the user of the failed coercion
-                throw new CoercionException(value, valueName, type, property);
+                throw new CoercionException(value, propertyName, type, property);
             }
 
             // Return the result

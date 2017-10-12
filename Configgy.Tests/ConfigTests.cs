@@ -55,14 +55,14 @@ namespace Configgy.Tests
             var expected = new object();
 
             var cacheMock = new Mock<IValueCache>();
-            cacheMock.Setup(c => c.Get(name, It.IsAny<Func<string, object>>()))
+            cacheMock.Setup(c => c.Get(null, name, It.IsAny<Func<GetValueArgs, object>>()))
                 .Returns(expected);
 
             var config = new ConfigWrapper<object>(cacheMock.Object, null, null, null, null);
 
             var result = config.Get_Wrapper(name);
 
-            cacheMock.Verify(c => c.Get(name, It.IsAny<Func<string, object>>()), Times.Once);
+            cacheMock.Verify(c => c.Get(null, name, It.IsAny<Func<GetValueArgs, object>>()), Times.Once);
             Assert.AreSame(expected, result);
         }
 
@@ -336,7 +336,7 @@ namespace Configgy.Tests
                 validatorMock.Object, coercerMock.Object);
 
             var result1 = config.TheProperty;
-            cache.Remove(name);
+            cache.Remove( null, name );
             var result2 = config.TheProperty;
 
             sourceMock.Verify(s => s.Get(name, It.IsAny<PropertyInfo>(), out expectedRaw), Times.Exactly(2));

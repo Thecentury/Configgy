@@ -15,12 +15,12 @@ namespace Configgy.Tests.Cache
             // Nothing to do
         }
 
-        public object Get(string valueName, Func<string, object> valueCallback)
+        public object Get( string settingName, string valueName, Func<GetValueArgs, object> valueCallback )
         {
-            return valueCallback(valueName);
+            return valueCallback( new GetValueArgs( settingName, valueName ) );
         }
 
-        public void Remove(string valueName)
+        public void Remove( string settingName, string valueName )
         {
             // Nothing to do
         }
