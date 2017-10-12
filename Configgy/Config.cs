@@ -135,8 +135,10 @@ namespace Configgy
             // Optimization: if the validator did the coercion the just return that value
             if (coerced) return result;
 
+            var coercionContext = new CoercionContext( Coercer );
+
             // Coerce the value
-            if (!Coercer.Coerce(value, valueName, property, out result))
+            if (!Coercer.Coerce(value, valueName, property, coercionContext, out result))
             {
                 // Throw an exception informing the user of the failed coercion
                 throw new CoercionException(value, valueName, type, property);

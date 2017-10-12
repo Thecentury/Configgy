@@ -46,16 +46,17 @@ namespace Configgy.Coercion
         /// <param name="value">The raw string value to be coerced.</param>
         /// <param name="valueName">The name of the value to be coerced.</param>
         /// <param name="property">If this value is directly associated with a property on a <see cref="Config"/> instance this is the reference to that property.</param>
+        /// <param name="context"></param>
         /// <param name="result">The coerced value.</param>
         /// <returns>True if the value could be coerced, false otherwise.</returns>
-        public bool Coerce<T>(string value, string valueName, ICustomAttributeProvider property, out T result)
+        public bool Coerce<T>( string value, string valueName, ICustomAttributeProvider property, CoercionContext context, out T result )
         {
             var propertyCoercers = property?.GetCustomAttributes(true)
                 .OfType<IValueCoercer>() ?? Enumerable.Empty<IValueCoercer>();
 
             foreach (var coercer in propertyCoercers.Union(_coercers))
             {
-                if (coercer.Coerce(value, valueName, property, out result)) return true;
+                if (coercer.Coerce(value, valueName, property, context, out result)) return true;
             }
 
             result = default(T);

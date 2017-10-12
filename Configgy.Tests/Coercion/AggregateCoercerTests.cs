@@ -21,18 +21,20 @@ namespace Configgy.Tests.Coercion
             var result = expected;
 
             var coercerMock1 = new Mock<IValueCoercer>();
-            coercerMock1.Setup(c => c.Coerce(value, name, null, out result))
-                .Returns(true);
+            coercerMock1.Setup( c => c.Coerce( value, name, null, It.IsAny<CoercionContext>(), out result ) )
+                .Returns( true );
 
             var coercerMock2 = new Mock<IValueCoercer>();
 
             var coercer = new AggregateCoercer(coercerMock1.Object, coercerMock2.Object);
 
-            var coerced = coercer.Coerce(value, name, null, out result);
+            var ctx = new CoercionContext( coercer );
 
-            coercerMock1.Verify(c => c.Coerce(value, name, null, out result), Times.Once);
+            var coerced = coercer.Coerce(value, name, null, ctx, out result);
+
+            coercerMock1.Verify(c => c.Coerce(value, name, null, It.IsAny<CoercionContext>(), out result), Times.Once);
             coercerMock2.Verify(
-                c => c.Coerce(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PropertyInfo>(), out result),
+                c => c.Coerce(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PropertyInfo>(), It.IsAny<CoercionContext>(), out result),
                 Times.Never);
             Assert.AreEqual(expected, result);
             Assert.IsTrue(coerced);
@@ -48,19 +50,19 @@ namespace Configgy.Tests.Coercion
             var invalidResult = 0;
 
             var coercerMock1 = new Mock<IValueCoercer>();
-            coercerMock1.Setup(c => c.Coerce(value, name, null, out invalidResult))
+            coercerMock1.Setup(c => c.Coerce(value, name, null, It.IsAny<CoercionContext>(), out invalidResult))
                 .Returns(false);
 
             var coercerMock2 = new Mock<IValueCoercer>();
-            coercerMock2.Setup(c => c.Coerce(value, name, null, out result))
+            coercerMock2.Setup(c => c.Coerce(value, name, null, It.IsAny<CoercionContext>(), out result))
                 .Returns(true);
 
             var coercer = new AggregateCoercer(coercerMock1.Object, coercerMock2.Object);
 
-            var coerced = coercer.Coerce(value, name, null, out result);
+            var coerced = coercer.Coerce(value, name, null, new CoercionContext( coercer ), out result);
 
-            coercerMock1.Verify(c => c.Coerce(value, name, null, out invalidResult), Times.Once);
-            coercerMock2.Verify(c => c.Coerce(value, name, null, out result), Times.Once);
+            coercerMock1.Verify(c => c.Coerce(value, name, null, It.IsAny<CoercionContext>(), out invalidResult), Times.Once);
+            coercerMock2.Verify(c => c.Coerce(value, name, null, It.IsAny<CoercionContext>(), out result), Times.Once);
             Assert.AreEqual(expected, result);
             Assert.IsTrue(coerced);
         }
@@ -76,7 +78,7 @@ namespace Configgy.Tests.Coercion
 
             var coercerMock1Attribute = new Mock<Attribute>();
             var coercerMock1 = coercerMock1Attribute.As<IValueCoercer>();
-            coercerMock1.Setup(c => c.Coerce(value, name, It.IsAny<PropertyInfo>(), out result))
+            coercerMock1.Setup(c => c.Coerce(value, name, It.IsAny<PropertyInfo>(), It.IsAny<CoercionContext>(), out result))
                 .Returns(true);
 
             var coercerMock2 = new Mock<IValueCoercer>();
@@ -88,12 +90,12 @@ namespace Configgy.Tests.Coercion
 
             var coercer = new AggregateCoercer(coercerMock2.Object);
 
-            var coerced = coercer.Coerce(value, name, propertyInfoMock.Object, out result);
+            var coerced = coercer.Coerce(value, name, propertyInfoMock.Object, new CoercionContext( coercer ), out result);
 
             attributeProviderMock.Verify(p => p.GetCustomAttributes(true), Times.Once);
-            coercerMock1.Verify(c => c.Coerce(value, name, propertyInfoMock.Object, out result), Times.Once);
+            coercerMock1.Verify(c => c.Coerce(value, name, propertyInfoMock.Object, It.IsAny<CoercionContext>(), out result), Times.Once);
             coercerMock2.Verify(
-                c => c.Coerce(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PropertyInfo>(), out invalidResult),
+                c => c.Coerce(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PropertyInfo>(), It.IsAny<CoercionContext>(), out invalidResult),
                 Times.Never);
             Assert.AreEqual(expected, result);
             Assert.IsTrue(coerced);
@@ -108,7 +110,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new AggregateCoercer(new IValueCoercer[0]);
 
             string result;
-            var coerced = coercer.Coerce(value, name, null, out result);
+            var coerced = coercer.Coerce(value, name, null, new CoercionContext( coercer ), out result);
 
             Assert.IsNull(result);
             Assert.IsFalse(coerced);

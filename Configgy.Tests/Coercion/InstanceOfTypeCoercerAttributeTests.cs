@@ -19,7 +19,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new InstanceOfTypeCoercerAttribute();
 
             int result;
-            var coerced = coercer.Coerce(value, null, null, out result);
+            var coerced = coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
 
             Assert.IsInstanceOfType(result, typeof(int));
             Assert.AreEqual(expected, result);
@@ -35,7 +35,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new InstanceOfTypeCoercerAttribute();
 
             int result;
-            var coerced = coercer.Coerce(value, null, null, out result);
+            var coerced = coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
 
             Assert.AreEqual(expected, result);
             Assert.IsFalse(coerced);
@@ -50,7 +50,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new InstanceOfTypeCoercerAttribute();
 
             int result;
-            var coerced = coercer.Coerce(value, null, null, out result);
+            var coerced = coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
 
             Assert.AreEqual(expected, result);
             Assert.IsFalse(coerced);
@@ -65,7 +65,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new InstanceOfTypeCoercerAttribute();
 
             ClassWithNoDefaultConstructor result;
-            coercer.Coerce(value, null, null, out result);
+            coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new InstanceOfTypeCoercerAttribute();
 
             ClassWithBrokenConstructor result;
-            coercer.Coerce(value, null, null, out result);
+            coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
         }
     }
 }

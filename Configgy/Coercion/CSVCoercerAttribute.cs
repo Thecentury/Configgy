@@ -31,8 +31,8 @@ namespace Configgy.Coercion
         /// Creates a CSVCoercerAttribute using the given item type and a comma as the separator.
         /// </summary>
         /// <param name="itemType">The type of the items in the array.</param>
-        public CsvCoercerAttribute(Type itemType)
-            : this(itemType, ",")
+        public CsvCoercerAttribute( Type itemType )
+            : this( itemType, "," )
         {
         }
 
@@ -41,14 +41,14 @@ namespace Configgy.Coercion
         /// </summary>
         /// <param name="itemType">The type of the items in the array.</param>
         /// <param name="separator">The string that separates the individual values.</param>
-        public CsvCoercerAttribute(Type itemType, string separator)
+        public CsvCoercerAttribute( Type itemType, string separator )
         {
             ItemType = itemType;
             ArrayType = itemType.MakeArrayType();
             Separator = separator;
 
             // get the converter for the given item type
-            _converter = TypeDescriptor.GetConverter(ItemType);
+            _converter = TypeDescriptor.GetConverter( ItemType );
         }
 
         /// <summary>
@@ -58,47 +58,48 @@ namespace Configgy.Coercion
         /// <param name="value">The raw string value to be coerced.</param>
         /// <param name="valueName">The name of the value to be coerced.</param>
         /// <param name="property">If this value is directly associated with a property on a <see cref="Config"/> instance this is the reference to that property.</param>
+        /// <param name="context"></param>
         /// <param name="result">The coerced value.</param>
         /// <returns>True if the value could be coerced, false otherwise.</returns>
-        public override bool Coerce<T>(string value, string valueName, ICustomAttributeProvider property, out T result)
+        public override bool Coerce<T>( string value, string valueName, ICustomAttributeProvider property, CoercionContext context, out T result )
         {
             // make sure the requested type is actually correct
-            if (typeof(T) != ArrayType)
+            if ( typeof( T ) != ArrayType )
             {
-                result = default(T);
+                result = default( T );
                 return false;
             }
 
             // Make sure the onverter can actually do the conversion
-            if (!_converter.CanConvertFrom(typeof(string)))
+            if ( !_converter.CanConvertFrom( typeof( string ) ) )
             {
-                throw new InvalidOperationException($"Unable to convert type {ItemType} from string.");
+                throw new InvalidOperationException( $"Unable to convert type {ItemType} from string." );
             }
 
             // If the string is null then return null
-            if (value == null)
+            if ( value == null )
             {
-                result = default(T);
+                result = default( T );
                 return true;
             }
 
             // If the string is empty then just return an empty array
-            if (value == string.Empty)
+            if ( value == string.Empty )
             {
-                result = (T)(object)Array.CreateInstance(ItemType, 0);
+                result = (T)(object)Array.CreateInstance( ItemType, 0 );
                 return true;
             }
 
             // get the converted values
-            var values = value.Split(new[] { Separator }, StringSplitOptions.None)
-                .Select(x => _converter.ConvertFromString(x))
+            var values = value.Split( new[] { Separator }, StringSplitOptions.None )
+                .Select( x => _converter.ConvertFromString( x ) )
                 .ToArray();
 
             // create the properly typed result array
-            result = (T)(object)Array.CreateInstance(ItemType, values.Length);
+            result = (T)(object)Array.CreateInstance( ItemType, values.Length );
 
             // copy the converted values into the typed result array
-            Array.Copy(values, (Array)(object)result, values.Length);
+            Array.Copy( values, (Array)(object)result, values.Length );
 
             // return the result array
             return true;

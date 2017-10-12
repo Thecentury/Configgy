@@ -18,7 +18,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new RegexCoercerAttribute();
 
             Regex result;
-            var coerced = coercer.Coerce(value, null, null, out result);
+            var coerced = coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
 
             Assert.IsNotNull(result);
             Assert.IsTrue(coerced);
@@ -33,7 +33,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new RegexCoercerAttribute();
 
             Regex result;
-            coercer.Coerce(value, null, null, out result);
+            coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
         }
 
         [TestMethod]
@@ -45,7 +45,7 @@ namespace Configgy.Tests.Coercion
             var coercer = new RegexCoercerAttribute();
 
             int result;
-            var coerced = coercer.Coerce(value, null, null, out result);
+            var coerced = coercer.Coerce(value, null, null, new CoercionContext( coercer ), out result);
 
             Assert.AreEqual(expected, result);
             Assert.IsFalse(coerced);
