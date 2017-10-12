@@ -8,6 +8,17 @@ namespace Configgy.Cache
 
         public string SettingName { get; }
 
+        public string GetFinalSettingName( string prefix )
+        {
+            string actualSettingName = SettingName ?? PropertyName;
+            if ( !string.IsNullOrWhiteSpace( prefix ) )
+            {
+                return prefix + "." + actualSettingName;
+            }
+
+            return actualSettingName;
+        }
+
         public GetValueArgs( string settingName, string propertyName )
         {
             PropertyName = propertyName;
@@ -31,14 +42,15 @@ namespace Configgy.Cache
             if ( ReferenceEquals( this, obj ) )
                 return true;
 
-            return obj is GetValueArgs && Equals( (GetValueArgs) obj );
+            return obj is GetValueArgs args && Equals( args );
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ( ( PropertyName != null ? PropertyName.GetHashCode() : 0 ) * 397 ) ^ ( SettingName != null ? SettingName.GetHashCode() : 0 );
+                return ( ( PropertyName != null ? PropertyName.GetHashCode() : 0 ) * 397 ) ^
+                    ( SettingName != null ? SettingName.GetHashCode() : 0 );
             }
         }
 

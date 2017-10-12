@@ -100,7 +100,7 @@ namespace Configgy
         /// Get a configuration value.
         /// </summary>
         /// <typeparam name="T">The type of the expected configuration value.</typeparam>
-        /// <param name="settingName"></param>
+        /// <param name="settingName">Optional setting name, if it differs from property name.</param>
         /// <param name="propertyName">
         ///     The name of the configuration value to get.
         ///     This will automatically be the name of the calling method or property and will be populated by the compiler.
@@ -111,12 +111,13 @@ namespace Configgy
             return (T)Cache.Get(settingName, propertyName, ProduceValue<T>);
         }
 
+        protected virtual string SettingNamePrefix => null;
+
         private object ProduceValue<T>(GetValueArgs args)
         {
-            string settingName = args.SettingName;
             string propertyName = args.PropertyName;
 
-            string actualSettingName = settingName ?? propertyName;
+            string actualSettingName = args.GetFinalSettingName( SettingNamePrefix );
 
             // get the property reference
             _properties.TryGetValue(propertyName, out PropertyInfo property);
